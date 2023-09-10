@@ -1,5 +1,3 @@
-
-import os
 import subprocess
 
 author_name = "Bruno Sábio"
@@ -18,27 +16,17 @@ print("#" * 40)
 
 def list_installed_versions():
     try:
-        output = subprocess.check_output("node -v", shell=True, stderr=subprocess.STDOUT, text=True)
-        current_version = output.strip()
-        print(f"A versão atual do Node.js é: {current_version}\n")
-
-    except subprocess.CalledProcessError as e:
-        print("Erro ao verificar a versão atual do Node.js:", e.output)
-        current_version = ""
-
-    try:
         output = subprocess.check_output("nvm list", shell=True, stderr=subprocess.STDOUT, text=True)
-        versions = output.split("\n")
+        versions = output.strip().split("\n")
         for i, version in enumerate(versions):
-            if version.strip():
-                print(f"{i} - {version.strip()}")
+            print(f"{i + 1} - {version.strip()}")
 
         print("# - Instalar outra versão")
-        return current_version
+        return versions
 
     except subprocess.CalledProcessError as e:
         print("Erro ao listar as versões do Node.js:", e.output)
-        return current_version
+        return []
 
 def install_version(version):
     try:
@@ -49,7 +37,7 @@ def install_version(version):
         print("Erro ao instalar a versão:", e.output)
 
 def main():
-    current_version = list_installed_versions()
+    current_versions = list_installed_versions()
     choice = input("\nEscolha uma opção (Digite o número da versão ou '#' para instalar outra): ")
 
     if choice == "#":
@@ -64,8 +52,8 @@ def main():
 
     elif choice.isdigit():
         choice = int(choice)
-        if 0 <= choice < len(current_version):
-            selected_version = current_version[choice]
+        if 1 <= choice <= len(current_versions):
+            selected_version = current_versions[choice - 1].strip().split()[0]
             subprocess.run(f"nvm use {selected_version}", shell=True)
         else:
             print("Opção inválida.")
